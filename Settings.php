@@ -76,13 +76,14 @@ class Settings {
     public function settingSid()
     {
         $options = get_option(SMSalert::$pluginName);
+        $api_sid = $options['api_sid'] ?? "";
         echo "
             <input
                 id='" . SMSalert::$pluginName . "[api_sid]'
                 name='" . SMSalert::$pluginName . "[api_sid]'
                 size='40'
                 type='text'
-                value='{$options['api_sid']}'
+                value='" . $api_sid . "'
                 placeholder='Enter your API SID here'
             />
         ";
@@ -95,13 +96,14 @@ class Settings {
     public function settingToken()
     {
         $options = get_option(SMSalert::$pluginName);
+        $api_auth_token = $options['api_auth_token'] ?? "";
         echo "
             <input
                 id='" . SMSalert::$pluginName . "[api_auth_token]'
                 name='" . SMSalert::$pluginName . "[api_auth_token]'
                 size='40'
                 type='text'
-                value='{$options['api_auth_token']}'
+                value='{$api_auth_token}'
                 placeholder='Enter your API AUTH TOKEN here'
             />
         ";
