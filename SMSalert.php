@@ -45,14 +45,9 @@ class SMSalert {
         }
 
         $to        = (isset($_POST["numbers"])) ? $_POST["numbers"] : "";
-        $sender_id = (isset($_POST["sender"]))  ? $_POST["sender"]  : "";
         $message   = (isset($_POST["message"])) ? $_POST["message"] : "";
 
-        //gets our api details from the database.
-        /*if (is_array($api_details) and count($api_details) != 0) {
-            $TWILIO_SID = $api_details["api_sid"];
-            $TWILIO_TOKEN = $api_details["api_auth_token"];
-        }*/
+        $sender_id = get_option('smsalert_phone_number');
         $TWILIO_SID = get_option('smsalert_api_sid');
         $TWILIO_TOKEN = get_option('smsalert_auth_token');
 

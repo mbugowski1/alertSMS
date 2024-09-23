@@ -40,6 +40,12 @@ class Settings {
                 'desc' => 'Enter your Auth Token here',
                 'id'   => 'smsalert_auth_token'
             ),
+            'smsalert_api_phone_number' => array(
+                'name' => 'Phone Number',
+                'type' => 'text',
+                'desc' => 'Enter phone number to use for sending SMS',
+                'id'   => 'smsalert_phone_number'
+            ),
             'section_end' => array(
                 'type' => 'sectionend',
                 'id'   => 'smsalert_api_keys_section_end'
