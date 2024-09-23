@@ -6,11 +6,11 @@ class Settings {
         // Saves and update settings
         //add_action("admin_init", [$this , 'adminSettingsSave']);
 
-        add_action('woocommerce_settings_tabs_array', [$this, 'test'], 50);
+        add_action('woocommerce_settings_tabs_array', [$this, 'createTab'], 50);
         add_action('woocommerce_settings_tabs_smsalert', [$this, 'showOptionsPageCallback']);
         add_action( 'woocommerce_update_options_smsalert', [$this, 'updateOptions'] );
     }
-    public function test($settings_tabs) {
+    public function createTab($settings_tabs) {
         $settings_tabs['smsalert'] = 'SMSalert';
         return $settings_tabs;
 
