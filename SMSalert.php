@@ -37,7 +37,9 @@ class SMSalert {
     }
     public function sendSMSReminder()
     {
-        $days_before = 3;
+        $days_before = intval(get_option('smsalert_days_before') ?? -1);
+        $message = get_option('smsalert_message') ?? "Your rental is due in " . $days_before . " days. Please return the item(s) to avoid penalties.";
+        if ($days_before < 0) return;
         $orders = wc_get_orders(
             array(
                 'limit'		=> -1,
@@ -63,8 +65,10 @@ class SMSalert {
                 $rent_to_inc_return_days_minus_days_before = gmdate( 'Y-m-d', strtotime( $rent_to_inc_return_days . ' - ' . $days_before . ' days' ) );
 
                 $current_date = wp_date( 'Y-m-d' );
-                //if($current_date != $rent_to_inc_return_days_minus_days_before) continue;
-                $this->send_message($order->get_billing_phone(), "Your rental is due in 3 days. Please return the item(s) to avoid penalties.");
+                error_log($rent_to_inc_return_days_minus_days_before);
+                if($current_date != $rent_to_inc_return_days_minus_days_before) continue;
+                $this->send_message($order->get_billing_phone(), $message);
+                break;
             }
         }
     }
