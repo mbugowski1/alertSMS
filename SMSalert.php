@@ -27,7 +27,7 @@ class SMSalert {
         add_action("admin_menu", [$this , "registerSendexSmsPage"]);// [...]
 
         // calls the sending function whenever we try sending messages.
-        add_action( 'admin_init', [$this , "send_test_message"] );
+        add_action( 'admin_post_submit_sms_test_form', [$this , "send_test_message"] );
     }
     public function scheduleSending()
     {
