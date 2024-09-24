@@ -2,10 +2,62 @@
 class Settings {
     function __construct() {
         // Add setting menu item
-        add_action("admin_menu", [$this , "addAdminOption"]);
+        //add_action("admin_menu", [$this , "addAdminOption"]);
         // Saves and update settings
-        add_action("admin_init", [$this , 'adminSettingsSave']);
+        //add_action("admin_init", [$this , 'adminSettingsSave']);
+
+        add_action('woocommerce_settings_tabs_array', [$this, 'createTab'], 50);
+        add_action('woocommerce_settings_tabs_smsalert', [$this, 'showOptionsPageCallback']);
+        add_action( 'woocommerce_update_options_smsalert', [$this, 'updateOptions'] );
     }
+    public function createTab($settings_tabs) {
+        $settings_tabs['smsalert'] = 'SMSalert';
+        return $settings_tabs;
+
+    }
+    public function showOptionsPageCallback()
+    {
+        woocommerce_admin_fields($this->showOptionsPage());
+    }
+    public function showOptionsPage()
+    {
+        $settings = array(
+            'section_title' => array(
+                'name'     => 'Klucze API',
+                'type'     => 'title',
+                'desc'     => '',
+                'id'       => 'smsalert_api_keys_title'
+            ),
+            'smsalert_api_sid' => array(
+                'name' => 'API SID',
+                'type' => 'text',
+                'desc' => 'Enter your API SID here',
+                'id'   => 'smsalert_api_sid'
+            ),
+            'smsalert_api_auth_token' => array(
+                'name' => 'Auth Token',
+                'type' => 'text',
+                'desc' => 'Enter your Auth Token here',
+                'id'   => 'smsalert_auth_token'
+            ),
+            'smsalert_api_phone_number' => array(
+                'name' => 'Phone Number',
+                'type' => 'text',
+                'desc' => 'Enter phone number to use for sending SMS',
+                'id'   => 'smsalert_phone_number'
+            ),
+            'section_end' => array(
+                'type' => 'sectionend',
+                'id'   => 'smsalert_api_keys_section_end'
+            )
+        );
+        return $settings;
+    }
+    public function updateOptions()
+    {
+        woocommerce_update_options($this->showOptionsPage());
+    }
+
     public function ShowSettingsPage() {
         ?>
         <form method="POST" action='options.php'>
@@ -27,10 +79,6 @@ class Settings {
             [$this, "ShowSettingsPage"]
         );
     }
-    /**
-     * Registers and Defines the necessary fields we need.
-     *  @since    1.0.0
-     */
     public function adminSettingsSave()
     {
         register_setting(
@@ -59,20 +107,10 @@ class Settings {
             "sendex_main"
         );
     }
-
-    /**
-     * Displays the settings sub header
-     *  @since    1.0.0
-     */
     public function sectionText()
     {
         echo '<h3 style="text-decoration: underline;">Edit api details</h3>';
     }
-
-    /**
-     * Renders the sid input field
-     *  @since    1.0.0
-     */
     public function settingSid()
     {
         $options = get_option(SMSalert::$pluginName);
@@ -88,11 +126,6 @@ class Settings {
             />
         ";
     }
-
-    /**
-     * Renders the auth_token input field
-     *
-     */
     public function settingToken()
     {
         $options = get_option(SMSalert::$pluginName);
@@ -108,11 +141,6 @@ class Settings {
             />
         ";
     }
-
-    /**
-     * Sanitizes all input fields.
-     *
-     */
     public function pluginOptionsValidate($input)
     {
         $newinput["api_sid"] = trim($input["api_sid"]);
