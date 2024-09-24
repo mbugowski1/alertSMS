@@ -27,7 +27,7 @@ class SMSalert {
         add_action("admin_menu", [$this , "registerSendexSmsPage"]);// [...]
 
         // calls the sending function whenever we try sending messages.
-        add_action( 'admin_init', [$this , "send_test_message"] );
+        add_action( 'admin_post_submit_sms_test_form', [$this , "send_test_message"] );
     }
     public function scheduleSending()
     {
@@ -124,15 +124,15 @@ class SMSalert {
         // Create our settings page as a submenu page.
         add_submenu_page(
             "tools.php", // parent slug
-            __("SENDEX SMS PAGE", SMSalert::$pluginName . "-sms"), // page title
-            __("SENDEX SMS", SMSalert::$pluginName . "-sms"), // menu title
+            __("SMS PAGE", SMSalert::$pluginName . "-sms"), // page title
+            __("SMS", SMSalert::$pluginName . "-sms"), // menu title
             "manage_options", // capability
             SMSalert::$pluginName . "-sms", // menu_slug
-            [$this, "displaySendexSmsPage"] // callable function
+            [$this, "displaySmsTestPage"] // callable function
         );
     }
     
-    public function displaySendexSmsPage()
+    public function displaySmsTestPage()
     {
         include_once "ToolsTester.php";
     }
