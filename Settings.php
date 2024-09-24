@@ -46,6 +46,18 @@ class Settings {
                 'desc' => 'Enter phone number to use for sending SMS',
                 'id'   => 'smsalert_phone_number'
             ),
+            'smsalert_days_before_field' => array(
+                'name' => 'Days before',
+                'type' => 'text',
+                'desc' => 'How many days before return should the SMS be sent (includes return days threshold)',
+                'id'   => 'smsalert_days_before'
+            ),
+            'smsalert_message_field' => array(
+                'name' => 'Message',
+                'type' => 'text',
+                'desc' => 'What message should be sent',
+                'id'   => 'smsalert_message'
+            ),
             'section_end' => array(
                 'type' => 'sectionend',
                 'id'   => 'smsalert_api_keys_section_end'

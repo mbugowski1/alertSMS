@@ -22,8 +22,8 @@ class SMSalert {
     public static $pluginName = "SMSalert";
     function __construct()
     {
-        //add_action( 'init', [$this, 'scheduleSending'] );
-        //add_action( 'send_sms_reminder', [$this, 'sendSMSReminder'] );
+        add_action( 'init', [$this, 'scheduleSending'] );
+        add_action( 'send_sms_reminder', [$this, 'sendSMSReminder'] );
         add_action("admin_menu", [$this , "registerSendexSmsPage"]);// [...]
 
         // calls the sending function whenever we try sending messages.
@@ -37,7 +37,40 @@ class SMSalert {
     }
     public function sendSMSReminder()
     {
+        $days_before = intval(get_option('smsalert_days_before') ?? -1);
+        $message = get_option('smsalert_message') ?? "Your rental is due in " . $days_before . " days. Please return the item(s) to avoid penalties.";
+        if ($days_before < 0) return;
+        $orders = wc_get_orders(
+            array(
+                'limit'		=> -1,
+                'status'	=> array( 'wc-processing' ),
+            )
+        );
+        if ( empty( $orders ) ) return;
+        foreach ( $orders as $order ) {
+            $order_id = $order->get_id();
+			$order_items = $order->get_items();
+            if ( empty( $order_items ) ) continue;
+            foreach ( $order_items as $order_item )
+            {
+                $order_item_type = $order_item->get_type();
+                if ( 'line_item' != $order_item_type ) continue;
+                $rent_from = $order_item->get_meta( 'wcrp_rental_products_rent_from' );
+                if ( empty( $rent_from ) ) continue;
+                if ($order_item->get_meta( 'wcrp_rental_products_returned' ) == 'yes') continue;
 
+                $rent_to = $order_item->get_meta( 'wcrp_rental_products_rent_to' );
+                $return_days_threshold = $order_item->get_meta( 'wcrp_rental_products_return_days_threshold' );
+                $rent_to_inc_return_days = gmdate( 'Y-m-d', strtotime( $rent_to . ' + ' . $return_days_threshold . ' days' ) );
+                $rent_to_inc_return_days_minus_days_before = gmdate( 'Y-m-d', strtotime( $rent_to_inc_return_days . ' - ' . $days_before . ' days' ) );
+
+                $current_date = wp_date( 'Y-m-d' );
+                error_log($rent_to_inc_return_days_minus_days_before);
+                if($current_date != $rent_to_inc_return_days_minus_days_before) continue;
+                $this->send_message($order->get_billing_phone(), $message);
+                break;
+            }
+        }
     }
 
     public function send_message($to, $message)
