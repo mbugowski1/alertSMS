@@ -31,8 +31,8 @@ class SMSalert {
     }
     public function scheduleSending()
     {
-        if ( false == wp_get_scheduled_event( 'sendSMSReminder' ) ) {
-            wp_schedule_event( wp_date( 'U', strtotime( gmdate( 'Y-m-d 02:36', strtotime( 'today' ) ) . ( get_option( 'gmt_offset' ) > 0 ? '-' : '+' ) . absint( get_option( 'gmt_offset' ) ) . ' hours' ) ), 'daily', 'sendSMSReminder' );
+        if ( false == wp_get_scheduled_event( 'send_sms_reminder' ) ) {
+            wp_schedule_event( wp_date( 'U', strtotime( gmdate( 'Y-m-d 12:00', strtotime( 'tomorrow' ) ) . ( get_option( 'gmt_offset' ) > 0 ? '-' : '+' ) . absint( get_option( 'gmt_offset' ) ) . ' hours' ) ), 'daily', 'send_sms_reminder' );
         }
     }
     public function sendSMSReminder()
@@ -63,7 +63,7 @@ class SMSalert {
                 $rent_to_inc_return_days_minus_days_before = gmdate( 'Y-m-d', strtotime( $rent_to_inc_return_days . ' - ' . $days_before . ' days' ) );
 
                 $current_date = wp_date( 'Y-m-d' );
-                if($current_date != $rent_to_inc_return_days_minus_days_before) continue;
+                //if($current_date != $rent_to_inc_return_days_minus_days_before) continue;
                 $this->send_message($order->get_billing_phone(), "Your rental is due in 3 days. Please return the item(s) to avoid penalties.");
             }
         }
