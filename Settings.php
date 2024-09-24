@@ -6,11 +6,11 @@ class Settings {
         // Saves and update settings
         //add_action("admin_init", [$this , 'adminSettingsSave']);
 
-        add_action('woocommerce_settings_tabs_array', [$this, 'test'], 50);
+        add_action('woocommerce_settings_tabs_array', [$this, 'createTab'], 50);
         add_action('woocommerce_settings_tabs_smsalert', [$this, 'showOptionsPageCallback']);
         add_action( 'woocommerce_update_options_smsalert', [$this, 'updateOptions'] );
     }
-    public function test($settings_tabs) {
+    public function createTab($settings_tabs) {
         $settings_tabs['smsalert'] = 'SMSalert';
         return $settings_tabs;
 
@@ -39,6 +39,12 @@ class Settings {
                 'type' => 'text',
                 'desc' => 'Enter your Auth Token here',
                 'id'   => 'smsalert_auth_token'
+            ),
+            'smsalert_api_phone_number' => array(
+                'name' => 'Phone Number',
+                'type' => 'text',
+                'desc' => 'Enter phone number to use for sending SMS',
+                'id'   => 'smsalert_phone_number'
             ),
             'section_end' => array(
                 'type' => 'sectionend',
