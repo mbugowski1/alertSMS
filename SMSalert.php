@@ -27,25 +27,21 @@ class SMSalert {
         add_action("admin_menu", [$this , "registerSendexSmsPage"]);// [...]
 
         // calls the sending function whenever we try sending messages.
-        add_action( 'admin_init', [$this , "send_message"] );
+        add_action( 'admin_init', [$this , "send_test_message"] );
     }
     public function scheduleSending()
     {
-        wp_schedule_event( wp_date( 'U', strtotime( gmdate( 'Y-m-d 12:00', strtotime( 'tomorrow' ) ) . ( get_option( 'gmt_offset' ) > 0 ? '-' : '+' ) . absint( get_option( 'gmt_offset' ) ) . ' hours' ) ), 'daily', 'send_sms_reminder' );
+        if ( false == wp_get_scheduled_event( 'send_sms_reminder' ) ) {
+            wp_schedule_event( wp_date( 'U', strtotime( gmdate( 'Y-m-d 12:00', strtotime( 'tomorrow' ) ) . ( get_option( 'gmt_offset' ) > 0 ? '-' : '+' ) . absint( get_option( 'gmt_offset' ) ) . ' hours' ) ), 'daily', 'send_sms_reminder' );
+        }
     }
     public function sendSMSReminder()
     {
 
     }
 
-    public function send_message()
+    public function send_message($to, $message)
     {
-        if (!isset($_POST["send_sms_message"])) {
-            return;
-        }
-
-        $to        = (isset($_POST["numbers"])) ? $_POST["numbers"] : "";
-        $message   = (isset($_POST["message"])) ? $_POST["message"] : "";
 
         $sender_id = get_option('smsalert_phone_number');
         $TWILIO_SID = get_option('smsalert_api_sid');
@@ -64,6 +60,13 @@ class SMSalert {
         } catch (Exception $e) {
             self::DisplayError($e->getMessage());
         }
+    }
+    public function send_test_message()
+    {
+        $to        = (isset($_POST["numbers"])) ? $_POST["numbers"] : "";
+        $message   = (isset($_POST["message"])) ? $_POST["message"] : "";
+
+        $this->send_message($to, $message);
     }
     public static function adminNotice($message, $status = true) {
         $class =  ($status) ? "notice notice-success" : "notice notice-error";
