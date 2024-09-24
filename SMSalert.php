@@ -22,8 +22,8 @@ class SMSalert {
     public static $pluginName = "SMSalert";
     function __construct()
     {
-        //add_action( 'init', [$this, 'scheduleSending'] );
-        //add_action( 'send_sms_reminder', [$this, 'sendSMSReminder'] );
+        add_action( 'init', [$this, 'scheduleSending'] );
+        add_action( 'send_sms_reminder', [$this, 'sendSMSReminder'] );
         add_action("admin_menu", [$this , "registerSendexSmsPage"]);// [...]
 
         // calls the sending function whenever we try sending messages.
@@ -31,13 +31,42 @@ class SMSalert {
     }
     public function scheduleSending()
     {
-        if ( false == wp_get_scheduled_event( 'send_sms_reminder' ) ) {
-            wp_schedule_event( wp_date( 'U', strtotime( gmdate( 'Y-m-d 12:00', strtotime( 'tomorrow' ) ) . ( get_option( 'gmt_offset' ) > 0 ? '-' : '+' ) . absint( get_option( 'gmt_offset' ) ) . ' hours' ) ), 'daily', 'send_sms_reminder' );
+        if ( false == wp_get_scheduled_event( 'sendSMSReminder' ) ) {
+            wp_schedule_event( wp_date( 'U', strtotime( gmdate( 'Y-m-d 02:36', strtotime( 'today' ) ) . ( get_option( 'gmt_offset' ) > 0 ? '-' : '+' ) . absint( get_option( 'gmt_offset' ) ) . ' hours' ) ), 'daily', 'sendSMSReminder' );
         }
     }
     public function sendSMSReminder()
     {
+        $days_before = 3;
+        $orders = wc_get_orders(
+            array(
+                'limit'		=> -1,
+                'status'	=> array( 'wc-processing' ),
+            )
+        );
+        if ( empty( $orders ) ) return;
+        foreach ( $orders as $order ) {
+            $order_id = $order->get_id();
+			$order_items = $order->get_items();
+            if ( empty( $order_items ) ) continue;
+            foreach ( $order_items as $order_item )
+            {
+                $order_item_type = $order_item->get_type();
+                if ( 'line_item' != $order_item_type ) continue;
+                $rent_from = $order_item->get_meta( 'wcrp_rental_products_rent_from' );
+                if ( empty( $rent_from ) ) continue;
+                if ($order_item->get_meta( 'wcrp_rental_products_returned' ) == 'yes') continue;
 
+                $rent_to = $order_item->get_meta( 'wcrp_rental_products_rent_to' );
+                $return_days_threshold = $order_item->get_meta( 'wcrp_rental_products_return_days_threshold' );
+                $rent_to_inc_return_days = gmdate( 'Y-m-d', strtotime( $rent_to . ' + ' . $return_days_threshold . ' days' ) );
+                $rent_to_inc_return_days_minus_days_before = gmdate( 'Y-m-d', strtotime( $rent_to_inc_return_days . ' - ' . $days_before . ' days' ) );
+
+                $current_date = wp_date( 'Y-m-d' );
+                if($current_date != $rent_to_inc_return_days_minus_days_before) continue;
+                $this->send_message($order->get_billing_phone(), "Your rental is due in 3 days. Please return the item(s) to avoid penalties.");
+            }
+        }
     }
 
     public function send_message($to, $message)
